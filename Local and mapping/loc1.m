@@ -1,4 +1,4 @@
-I = imread('test1.png');
+I = imread('test2.png');
 [wPt,iPt] = caltag( I, 'output.mat', false );
 imshow(I);
 hold on;

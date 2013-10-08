@@ -1,4 +1,7 @@
-function [intrinsics, extrinsics] = cam_calib()
+function [intrinsics, extrinsics] = cam_calib(kinect)
+%Call the calulate intrinsics / extrinsics
+%If kinect = 0, use the already saved pictures
+
 %Function Constants
 %Number original images to take
 Num_orig = 500;
@@ -7,9 +10,15 @@ Num_save = 40;
 %Wintx/y variables
 Wintin = 4:10;
 
+if nargin == 0
+    kinect = 1;
+end
+
 %Get and save the images
-% [I, D] = get_images(Num_orig);
-% save_images(I,D,Num_save);
+if kinect
+    [I, D] = get_images(Num_orig);
+    save_images(I,D,Num_save);
+end
 
 %Now do image processing on the images
 addpath('Calib_tool2');
@@ -83,6 +92,9 @@ intrinsics.cc = cc';
 intrinsics.alpha_c = alpha_c;
 intrinsics.kc = kc';
 intrinsics.err = err_std';
+
+%FOR LATER CODE PARTS
+save intrinsics;
 trans_m = zeros(4,4,n_ima);
 for i=1:n_ima
     trans_m(:,:,i) = eval(['[Rc_' num2str(i) ',Tc_' num2str(i) ';0,0,0,1]']);
