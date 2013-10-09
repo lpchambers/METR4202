@@ -236,21 +236,21 @@ for kk=1:n_ima
 end
 
 % Suspicious Mode
-for kk= 1:n_ima
-    if exist(['sus_',num2str(kk)],'var')
-        if eval(['sus_',num2str(kk)])
-            eval(['sus_',num2str(kk),'=0;'])
-            I=eval(['I_',num2str(kk)]);
-            figure(2);
-            image(I); colormap(map); hold on;
-            grid_pts_mat=eval(['grid_pts_mat_',num2str(kk)]);
-            plot(grid_pts_mat(:,:,2),grid_pts_mat(:,:,1),'+');
-            fprintf('\nPlease Check Validity of Corners on Image %d\nSuppress If necessary\n',kk);
-            pause;
-            close all;
-        end
-    end
-end
+% for kk= 1:n_ima
+%     if exist(['sus_',num2str(kk)],'var')
+%         if eval(['sus_',num2str(kk)])
+%             eval(['sus_',num2str(kk),'=0;'])
+%             I=eval(['I_',num2str(kk)]);
+%             figure(2);
+%             image(I); colormap(map); hold on;
+%             grid_pts_mat=eval(['grid_pts_mat_',num2str(kk)]);
+%             plot(grid_pts_mat(:,:,2),grid_pts_mat(:,:,1),'+');
+%             fprintf('\nPlease Check Validity of Corners on Image %d\nSuppress If necessary\n',kk);
+%             pause;
+%             close all;
+%         end
+%     end
+% end
 
 disp('done');
 

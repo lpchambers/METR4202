@@ -94,7 +94,7 @@ intrinsics.kc = kc';
 intrinsics.err = err_std';
 
 %FOR LATER CODE PARTS
-save intrinsics;
+save('intrinsics.mat', 'intrinsics');
 trans_m = zeros(4,4,n_ima);
 for i=1:n_ima
     trans_m(:,:,i) = eval(['[Rc_' num2str(i) ',Tc_' num2str(i) ';0,0,0,1]']);
