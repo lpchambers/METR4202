@@ -16,8 +16,6 @@ if nargin == 1
 end
 if nargin == 0
     kinect = 1;
-end
-if kinect == 1
     coins = 0;
 end
 
@@ -36,14 +34,7 @@ i=intrinsics;
 if kinect
     [I, D] = get_images(1);
 else
-    which_read = input('Read in file ''ctag3.jpg''[0] or load file ImD[1]: ');
-    if which_read
-        load ImD;
-        load all_coins
-    else
-        I = imread('ctag3.jpg');
-        D = imread('t1d.png');
-    end    
+    I = imread('ctag3.jpg');
 end;
 figure; imshow(I);
 
@@ -68,26 +59,16 @@ if isempty(wPt)
     if coins
         disp('Will return coinpos relative to camera frame...maybe');
         %YAYAYAYAY Get to do fun camera matrix maths
-        coinpos = zeros(size(all_coins,1),3);
-        for i=1:size(all_coins,1)
-            %since all_coins is row-col and ctx/y is xy
-            ctx = all_coins(i,2);
-            cty = all_coins(i,1);
-            %ctx and cty are x and y positions of coins
-            w = normalize([ctx; cty], i.fc, i.cc, i.kc, i.alpha_c);
-            wx = w(1);
-            wy = w(2);
-            %WORLD coord X and WORLD coord Y
-            
-            wd = D(cty, ctx); %World depth map of coin
-            wz = sqrt(wd^2 - wx^2 - wy^2);
-            coinpos(i,1) = wx;
-            coinpos(i,2) = wy;
-            coinpos(i,3) = wz;
-        end
         
-    else
-        coinpos = [];
+        
+        %ctx and cty are x and y positions of coins
+        w = normalize([ctx; cty], i.fc, i.cc, i.kc, i.alpha_c);
+        wx = w(1);
+        wy = w(2);
+        %WORLD coord X and WORLD coord Y
+        
+        wd = D(cty, ctx); %World depth map of coin
+        wz = sqrt(wd^2 - wx^2 - wy^2);
     end
 else
     disp('Caltag Frame detected, calculating position');
@@ -152,32 +133,22 @@ else
     
     %Put it all in a vector for return
     campos = [wx_cam, wy_cam, wz_cam, cam_roll, cam_pitch, yaw];
-    if coins
-        %Now locate the coins
-        %%%
-        %%%
-        %%%
-        %%%
-    else
-        coinpos = [];
-    end
+end
+
+[pix] = project_points2([wx;wy;wz], [0;0;0], [0;0;0], i.fc', i.cc', i.kc', i.alpha_c);
+
+campos = [wx, wy, wz];
+
+if coins
+    coins = zeros(1,6);
+else
+    coins = [];
 end
 
 
 
 
 
-
-
-% [pix] = project_points2([wx;wy;wz], [0;0;0], [0;0;0], i.fc', i.cc', i.kc', i.alpha_c);
-% 
-% campos = [wx, wy, wz];
-% 
-% if coins
-%     coins = zeros(1,6);
-% else
-%     coins = [];
-% end
 
 %%%%%PAST CALTAG FINDER METHODS
 %USE SSD template matching

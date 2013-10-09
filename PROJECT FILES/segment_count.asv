@@ -44,7 +44,7 @@ if kinect
     [I, D] = get_images(1);
     save('ImD.mat','I','D');
 else
-    which_read = input('Read in file ''t1rgb.png''[0] or load file ImD[1]: ');
+    which_read = input('Read in file ''t1rgb.png''[0] or load file ImD[1]');
     if which_read
         load ImD;
     else
@@ -250,9 +250,7 @@ end;
 disp('Found Coins');
 
 %Save all coin locations for local_map
-all_coins = [GoldCoins; SilverCoins];
-all_coins = all_coins(:,1:2);
-save('all_coins.mat','all_coins');
+all_coins = [
 
 disp('Sorting coins');
 %Now sort by coin radius
