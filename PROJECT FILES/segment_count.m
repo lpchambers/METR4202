@@ -1,11 +1,15 @@
-function [money, coin_array, notes] = segment_count(show_pics)
+function [money, coin_array, notes] = segment_count(kinect, show_pics)
 % Takes a picture with the kinect and return the approximate
 % money value.
 
 %if no arg, set no show pics
 if nargin == 0
     show_pics = 0;
-end;
+    kinect = 1;
+end
+if nargin == 1
+    show_pics = 0;
+end
 
 %Normalised aussie coins matrix
 c5 = 1;
@@ -35,11 +39,13 @@ gold_sat = 0.9;
 silver_sat = 0.6;
 sat_thresh = 0.03;
 
-
-
 %Get the images
-I = imread('t1rgb.png');
-% D = imread('t1d.png');
+if kinect
+    [I, D] = get_images(1);
+else
+    I = imread('t1rgb.png');
+    % D = imread('t1d.png');
+end
 
 I_g = rgb2gray(I);
 K = fspecial('gaussian');
@@ -48,6 +54,7 @@ I_edge = edge(I_blur, 'canny');
 % imshow(I_edge);
 
 %Find the plate
+disp('Finding Plate');
 num_plates = 0;
 max_rad = 480;
 while num_plates == 0;
@@ -56,7 +63,8 @@ while num_plates == 0;
     num_plates = length(plate_radii);
     max_rad = max_rad - 50;
 end;
-
+disp('Plate Found');
+disp('Masking Plate');
 %Get the max radii plate
 if num_plates ~= 1
     [~, idx] = max(plate_radii);
@@ -67,22 +75,33 @@ end;
 c = round(plate_centres);
 r = round(plate_radii);
 pmask = zeros(size(I,1),size(I,2));
-pmask(c(1,2)-r:c(1,2)+r, c(1,1)-r:c(1,1)+r) = 1;
+%This is a circlular mask
+for i=1:size(I,1)
+    for j=1:size(I,2)
+        if norm(c-[j,i]) < r
+            pmask(i,j) = 1;
+        end
+    end
+end
+%This is a square mask
+% pmask(c(1,2)-r:c(1,2)+r, c(1,1)-r:c(1,1)+r) = 1;
 
 %Save for local_map
 plate_left = c(1,1)-r;
-save('plate_left.mat',plate_left);
+save('plate_left.mat','plate_left');
 
 %Get the plate image
 I_plate = imoverlay(I, ~pmask, [1,1,1]);
 notes = get_notes(I_plate);
 I_edge2 = imoverlay(I_edge, ~pmask, [0,0,0]);
-% figure; imshow(I_plate);
+
 if show_pics
+    figure; imshow(I_plate);
     figure; imshow(I_edge2);
 end;
 
-[centres, radii] = imfindcircles(I_edge, [10,20]);
+disp('Finding Coins');
+[centres, radii] = imfindcircles(I_edge, [10,30]);
 if show_pics
     figure; imshow(I);
     viscircles(centres, radii,'EdgeColor','b');
@@ -167,7 +186,7 @@ CCs = bwconncomp(smask);
 
 %Some coins are missing, or something is tricking us
 if CCs.NumObjects + CCg.NumObjects ~= CCc.NumObjects
-    disp('There is an error, check CCs, CCg and CCc');
+    disp('Ignoring extra detected circles');
 end;
 
 if CCs.NumObjects + CCg.NumObjects == 0
@@ -222,8 +241,9 @@ for i=1:CCs.NumObjects
     SilverCoins(i, 1:2) = centres(id,:);
     SilverCoins(i, 3) = radii(id);
 end;
+disp('Found Coins');
 
-
+disp('Sorting coins');
 %Now sort by coin radius
 GoldCoins = sortrows(GoldCoins,3);
 SilverCoins = sortrows(SilverCoins,3);
@@ -412,5 +432,5 @@ for i=1:length(CoinVal)
         eval(['coin_array.' CoinName{i} '=coi(idx,1);']);
     end
 end
-
+disp('done');
 end

@@ -5,6 +5,7 @@ if nargin == 1
 end
 if nargin == 0
     kinect = 1;
+    coins = 0;
 end
 
 %This file will generate the camera matrix
