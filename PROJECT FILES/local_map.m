@@ -48,6 +48,7 @@ end;
 % Read training images
 train1 = rgb2gray(imread('template1.png'));
 train2 = rgb2gray(imread('template2.png'));
+
 % Extract SIFT features and descriptors
 [f_train1, d_train1] = vl_sift(single(train1));
 [f_train2, d_train2] = vl_sift(single(train2));
@@ -57,9 +58,14 @@ Ig = rgb2gray(I); %Get grayscale of our image
 [m1, s1] = vl_ubcmatch(d_train1, d_I);
 [m2, s2] = vl_ubcmatch(d_train2, d_I);
 
+[ctx, cty] = visualise_sift_matches(train1, Ig, f_train1, f_I, m1);
+
+% [i2, b2] = visualise_sift_matches(train2, Ig, f_train2, f_I, m1);
+
 %caltag coords:
-ctx = x;
-cty = y;
+figure;
+imshow(Ig);
+hold on
 plot(cty, ctx, 'bo');
 
 w = normalize([ctx; cty], i.fc, i.cc, i.kc, i.alpha_c);
