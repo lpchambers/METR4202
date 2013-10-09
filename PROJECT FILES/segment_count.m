@@ -1,6 +1,25 @@
 function [money, coin_array, notes] = segment_count(kinect, show_pics)
 % Takes a picture with the kinect and return the approximate
 % money value.
+%The coins and notes must be on a plate for this code to work
+%Arguements:
+%
+%Input:
+%kinect - boolean, if true, take a picture with the kinect,
+%                  if false, choose pretaken image
+%show_pics - boolean, if true show images of all imtermediate steps
+%
+%Output:
+%money - Returns the dollar value of the coins and notes
+%coin_array - A struct array with fields {c5, c10, c20, c50, AUD1, AUD2
+%           which are how many of each coin type there are
+%notes - A struct array with fields: money - the total note money in the
+%   picture and {'five1'; 'five2'; 'ten1'; 'ten2'; 'twenty1'; 'twenty2';
+%'fifty1'; 'fifty2'} which are how many of each note type there are. Note
+%that five1 and five2 are both 5 dollar notes, just different sides of the
+%note.
+%
+%Lewis Chambers October 2013
 
 %if no arg, set no show pics
 if nargin == 0

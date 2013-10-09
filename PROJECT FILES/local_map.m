@@ -1,6 +1,8 @@
 function [campos, coinpos] = local_map(kinect, coins)
 %Find the camera position relative to a central frame
-%Also find coin positions (only if kinect == 0)
+%Also find coin positions (only if kinect == 0). Coins can only be found if
+%the function segment_count was called first and you choose to use that
+%picture
 %All co-ordinates in this function are as XY not row-column
 %Co-ordinates defined in mm
 %Camera position rpy is defined as:
@@ -8,8 +10,28 @@ function [campos, coinpos] = local_map(kinect, coins)
 %Pitch - about y (second)   }  All angles in radians
 %Yaw - about z (third)      }
 %
+%The homography is defined as translation then rpy rotation
+%
+%Inputs:
+%kinect - boolean, if true, take a picture with the kinect,
+%                  if false, choose pretaken image
+%coins - boolean, if true, determince positions of coins (note this can
+%   only be done when kinect is 0, since the segment_count function must be
+%   run first
+%
+%Outputs:
 %Campos returns as a 1x6 vector:
 %Campos = [xpos, ypos, zpos, roll, pitch, yaw
+%
+%Coins real xyz position in mm is returned
+%Since camera resolution is 480x640 determining pose of coins is extremely
+%difficult as they are really hard to see
+%
+%Coinpos is a nx3 vector, where n is the number of coins
+%Coinpos(i,:) = [x, y, z] in mm for 1<i<n
+%If coins = 0; coinpos = [];
+%
+%Lewis Chambers October 2013
 
 if nargin == 1
     coins = 0;
@@ -70,9 +92,9 @@ if isempty(wPt)
         %YAYAYAYAY Get to do fun camera matrix maths
         coinpos = zeros(size(all_coins,1),3);
         for i=1:size(all_coins,1)
-            %since all_coins is row-col and ctx/y is xy
-            ctx = all_coins(i,2);
-            cty = all_coins(i,1);
+            %since all_coins is xy and ctx/y is xy
+            ctx = all_coins(i,1);
+            cty = all_coins(i,2);
             %ctx and cty are x and y positions of coins
             w = normalize([ctx; cty], i.fc, i.cc, i.kc, i.alpha_c);
             wx = w(1);
@@ -154,10 +176,27 @@ else
     campos = [wx_cam, wy_cam, wz_cam, cam_roll, cam_pitch, yaw];
     if coins
         %Now locate the coins
-        %%%
-        %%%
-        %%%
-        %%%
+        %all_coins = [x1,y1;  x2,y2; ...]  are in xy pos.
+        %So use the same functions to get xy co-ords of coinpos
+        coinpos = zeros(size(all_coins,1),3);
+        for i=1:size(all_coins,1)
+            xy(1) = all_coins(i,1);
+            xy(2) = all_coins(i,2);
+            a = (xy(1)/dy(1) - xy(2)/dy(2)) / (dx(1) - dx(2));
+            b = xy(2)/dy(2) - a*dx(2);
+            %So coin i's position in x/y in mm is [a*dxd , b*dyd]
+            coinpos(i,1) = a*dxd;
+            coinpos(i,2) = b*dyd;
+            %Now to find z, we know the camera is wz_cam above the frame
+            %We need to find how far above the coins the camera is
+            r = D(all_coins(i,2), all_coins(i,1));
+            %Get the cx and cy distance of the coin relative to frame
+            %centre
+            cx = cc(1) - all_coins(i,1);
+            cy = cc(2) - all_coins(i,2);
+            coinz = sqrt(r^2 - cx^2 - cy^2);
+            coinpos(i,3) = wz_cam - coinz;
+        end
     else
         coinpos = [];
     end

@@ -1,4 +1,18 @@
 function notes = get_notes(I)
+%A function that takes an input image, I, and using the sift algorithm,
+%returns the total note value in the picture with how many of each note
+%there are
+%Input:
+%I - An rgb image of a scene with (possibly) notes in it.
+%Output:
+%notes - A struct array with fields: money - the total note money in the
+%   picture and {'five1'; 'five2'; 'ten1'; 'ten2'; 'twenty1'; 'twenty2';
+%'fifty1'; 'fifty2'} which are how many of each note type there are. Note
+%that five1 and five2 are both 5 dollar notes, just different sides of the
+%note.
+%
+%Lewis Chambers October 2013
+
 thresh_score = 25000;
 thresh_num = 20;
 %Get the image features of the Image

@@ -1,6 +1,28 @@
 function [intrinsics, extrinsics] = cam_calib(kinect)
-%Call the calulate intrinsics / extrinsics
-%If kinect = 0, use the already saved pictures
+%A function that can calulate intrinsics / extrinsics parameters of a
+%camera and set of photos with a black and white checkerboard. The
+%checkerboard must have 30x30mm grid squares and be held flat while camera
+%dancing. To calibrate, simply start the program and stand in front of the
+%kinect and wave the checkerboard around in front of the camera.
+%
+%Arguements:
+%Input: 
+%Kinect - If true take new pictures, if false use already taken pictures
+%Output:
+%intrinsics - Struct array with classes: fc, cc, kc, alpha_c, err
+%Extrinsics - A 4x4x40 array of transformation matricies for each of the
+%   pictures. Get the extrinsics of the ith picture by extrinsics(:,:,i)
+%   Note, not all pictures can be calibrated, so some entries in extrinsics
+%   may be arrays of NaN
+%
+%This function borrow heavily from the RADOCC toolbox, which can be found
+%here: http://www-personal.acfr.usyd.edu.au/akas9185/AutoCalib/index.html
+%The RADOCC toolbox itself is a derivative of Jean-Yves Bouguet's Camera
+%Calibration toolbox. For a more complete description of returned
+%parameters, please consult his website:
+%http://www.vision.caltech.edu/bouguetj/calib_doc/
+%
+%Lewis Chambers October 2013
 
 %Function Constants
 %Number original images to take
@@ -14,6 +36,7 @@ if nargin == 0
     kinect = 1;
 end
 
+%If kinect = 0, use the already saved pictures
 %Get and save the images
 if kinect
     [I, D] = get_images(Num_orig);
