@@ -16,7 +16,9 @@ D = ones(480,640,1,n, 'uint16');
 
 for i=1:n
     I0=mxNiPhoto(KinectHandles); I0=permute(I0,[3 2 1]);
+    I0=flipdim(I0,2);
     D0=mxNiDepth(KinectHandles); D0=permute(D0,[2 1]);
+    D0=flipdim(D0,2);
     mxNiUpdateContext(KinectHandles);
     I(:,:,:,i) = I0;
     D(:,:,:,i) = D0;
