@@ -51,12 +51,18 @@ CoinVal = [0.05, 0.1, 0.2, 0.5, 1, 2];
 coin_thresh = max(-diff(CoinDiam/max(CoinDiam)))/2;
 
 %Get the colour threshold
-gold_hue = 0.11;
-silver_hue = 0.105;
-hue_thresh = 0.02;
-gold_sat = 0.9;
-silver_sat = 0.6;
-sat_thresh = 0.03;
+% gold_hue = 0.11;
+% silver_hue = 0.105;
+% hue_thresh = 0.02;
+% gold_sat = 0.9;
+% silver_sat = 0.6;
+% sat_thresh = 0.03;
+gold_hue = 0.064;
+silver_hue = 0.034;
+hue_thresh = 0.03;
+gold_sat = 0.6;
+silver_sat = 0.38;
+sat_thresh = 0.05;
 
 %Get the images
 if kinect
@@ -297,6 +303,8 @@ SilverRadii = SilverRadii / smax;
 % So it works
 
 %Now put into classes
+Gcoin = [0,0,0];
+Scoin = [0,0,0];
 %Gcoin is array : radius, numcoins
 for i=1:length(GoldRadii)
     %initialise array for first coin

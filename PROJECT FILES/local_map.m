@@ -67,7 +67,6 @@ else
         D = imread('t1d.png');
     end    
 end;
-figure; imshow(I);
 
 %undistort image
 %for the undistort script
@@ -87,6 +86,7 @@ end;
 %Check if caltag deteced
 if isempty(wPt)
     disp('Caltag not detected due to quality of image or lighting');
+    campos = [];
     if coins
         disp('Will return coinpos relative to camera frame...maybe');
         %YAYAYAYAY Get to do fun camera matrix maths
@@ -101,8 +101,8 @@ if isempty(wPt)
             wy = w(2);
             %WORLD coord X and WORLD coord Y
             
-            wd = D(cty, ctx); %World depth map of coin
-            wz = sqrt(wd^2 - wx^2 - wy^2);
+            wd = D(round(cty), round(ctx)); %World depth map of coin
+            wz = sqrt(double(wd)^2 - double(wx)^2 - double(wy)^2);
             coinpos(i,1) = wx;
             coinpos(i,2) = wy;
             coinpos(i,3) = wz;
@@ -122,14 +122,34 @@ else
     ibl = find(ismember(wPt,[8,0], 'rows'));
     itl = find(ismember(wPt,[8,4], 'rows'));
     %Assume we have the corner points
-    dx1 = iPt(ibr,:) - iPt(ibl,:);
-    dx2 = iPt(itr,:) - iPt(itl,:);
-    dx = [mean([dx1(1),dx2(1)]), mean([dx1(2),dx2(2)])];
-    dy1 = iPt(itl,:) - iPt(ibl,:);
-    dy2 = iPt(itr,:) - iPt(ibr,:);
-    dy = [mean([dy1(1),dy2(1)]), mean([dy1(2),dy2(2)])];
-    %dx and dy are vectors on the axis of real world length dxd and dyd
     
+    if isempty(ibr)
+        dx = iPt(itr,:) - iPt(itl,:);
+        dy = iPt(itl,:) - iPt(ibl,:);
+    else
+        if isempty(itr)
+            dx = iPt(ibr,:) - iPt(ibl,:);
+            dy = iPt(itl,:) - iPt(ibl,:);
+        else
+            if isempty(ibl)
+                dx = iPt(itr,:) - iPt(itl,:);
+                dy = iPt(itr,:) - iPt(ibr,:);
+            else
+                if isempty(itl)
+                    dx = iPt(ibr,:) - iPt(ibl,:);
+                    dy = iPt(itr,:) - iPt(ibr,:);
+                else
+                    dx1 = iPt(ibr,:) - iPt(ibl,:);
+                    dx2 = iPt(itr,:) - iPt(itl,:);
+                    dx = [mean([dx1(1),dx2(1)]), mean([dx1(2),dx2(2)])];
+                    dy1 = iPt(itl,:) - iPt(ibl,:);
+                    dy2 = iPt(itr,:) - iPt(ibr,:);
+                    dy = [mean([dy1(1),dy2(1)]), mean([dy1(2),dy2(2)])];
+                end
+            end
+        end
+    end
+    %dx and dy are vectors on the axis of real world length dxd and dyd
     origin = iPt(ibl,:) - 0.07*dx - 0.285*dy;
     hold on
     plot(origin(2), origin(1), 'r*');
@@ -147,14 +167,14 @@ else
     
     %So we know that we are 'a' lots of dx's in the x direction of the
     %frame and 'b' lots of dy's in y dir, so world x and y pos of cam:
-    wx_cam = a*dxd;
-    wy_cam = b*dyd;
-
+    wx_cam = b*dxd;
+    wy_cam = a*dyd;
+    
     %The depth map will give the straight line distance, so will call it r
     %where r=sqrt(wx^2 + wy^2 + wz^2)   ||    r is in mm
-    r = D(origin(2), origin(1));
+    r = D(round(origin(1)), round(origin(2)));
     %so wz_cam is:
-    wz_cam = sqrt(r^2 - wx_cam^2 - wy_cam^2);
+    wz_cam = sqrt(double(r)^2 - double(wx_cam)^2 - double(wy_cam)^2);
     
     %Now calcluate the rpy
     %Since camera is directly above, roll = 0 radians
@@ -163,10 +183,10 @@ else
     %is pi radians
     cam_pitch = pi;
     %note that yaw is inverted since we flipped the orientation
-    %yaw is the angle of dx. so yaw = -atan(dx(2) - dx(1))
-    yaw = atan(dx(2) - dx(1));
+    %yaw is the angle of dx. so yaw = -atan(dx(2) / dx(1))
+    yaw = atan(dx(1) / dx(2));
     %check for quadrant 2 or 3
-    if dx(1) < 0
+    if dx(2) < 0
         yaw = yaw + pi;
     end
     %now compensate for the switch
@@ -185,16 +205,16 @@ else
             a = (xy(1)/dy(1) - xy(2)/dy(2)) / (dx(1) - dx(2));
             b = xy(2)/dy(2) - a*dx(2);
             %So coin i's position in x/y in mm is [a*dxd , b*dyd]
-            coinpos(i,1) = a*dxd;
-            coinpos(i,2) = b*dyd;
+            coinpos(i,1) = b*dxd;
+            coinpos(i,2) = a*dyd;
             %Now to find z, we know the camera is wz_cam above the frame
             %We need to find how far above the coins the camera is
-            r = D(all_coins(i,2), all_coins(i,1));
+            r = D(round(all_coins(i,2)), round(all_coins(i,1)));
             %Get the cx and cy distance of the coin relative to frame
             %centre
             cx = cc(1) - all_coins(i,1);
             cy = cc(2) - all_coins(i,2);
-            coinz = sqrt(r^2 - cx^2 - cy^2);
+            coinz = sqrt(double(r)^2 - double(cx)^2 - double(cy)^2);
             coinpos(i,3) = wz_cam - coinz;
         end
     else

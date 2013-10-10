@@ -31,6 +31,7 @@ for i=1:length(NoteName)
     %Match them
     eval(['[matches scores] = vl_ubcmatch(d_' NoteName{i} ', d_I);']);
     disp(NoteName{i})
+    sum(scores>thresh_score)
     %Check for threshold
     if sum(scores>thresh_score) > thresh_num
         eval(['notes.' NoteName{i} ' = 1;']);

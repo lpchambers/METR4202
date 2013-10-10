@@ -13,10 +13,10 @@ fig_number = 1;
 
 title_figure = 'METR4202 - Show me the money';
 
-cell_list{1,1} = {'Colour Calibration','data_calib;'};
+cell_list{1,1} = {'Colour Calibration','[OYrgb, OYhsv, OYycbcr, Nrgb, Nhsv, Nycbcr] = findTHIS();'};
 cell_list{1,2} = {'Camera Calibration (kinect)','[intrinsics, extrinsics] = cam_calib(1)'};
 cell_list{2,1} = {'Camera Calibration (existing)','[intrinsics, extrinsics] = cam_calib(0)'};
-cell_list{2,2} = {'Object Segmentation (kinect)','[money, coin_array, notes] = segment_count(1,0)'};
+cell_list{2,2} = {'Object Segmentation (kinect)','[money, coin_array, notes] = segment_count(1,1)'};
 cell_list{3,1} = {'Object Segmentation (existing)','[money, coin_array, notes] = segment_count(0,0)'};
 cell_list{3,2} = {'Object Segmentation (steps)','[money, coin_array, notes] = segment_count(0,1)'};
 cell_list{4,1} = {'Localise Camera (kinect)','[campos, coinpos] = local_map(1,0)'};
